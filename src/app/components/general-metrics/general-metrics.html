@@ -1,0 +1,368 @@
+<div class="general-metrics-container">
+  <!-- Header -->
+  <header class="page-header">
+    <h1>🏠 House Power Statistics</h1>
+    <p class="subtitle">Comprehensive energy consumption analysis</p>
+  </header>
+
+  <!-- Time Period Tabs -->
+  <div class="period-tabs">
+    <button 
+      [class.active]="activeTab === 'day'"
+      (click)="setActiveTab('day')"
+      class="tab-button">
+      📅 Last Day
+    </button>
+    <button 
+      [class.active]="activeTab === 'week'"
+      (click)="setActiveTab('week')"
+      class="tab-button">
+      📊 Last Week
+    </button>
+    <button 
+      [class.active]="activeTab === 'month'"
+      (click)="setActiveTab('month')"
+      class="tab-button">
+      📈 Last Month
+    </button>
+    <button 
+      [class.active]="activeTab === 'custom'"
+      (click)="setActiveTab('custom')"
+      class="tab-button">
+      🔍 Custom Range
+    </button>
+  </div>
+
+  <!-- Custom Date Range Selector -->
+  @if (activeTab === 'custom') {
+    <div class="custom-range-selector">
+      <div class="date-inputs">
+        <div class="date-input-group">
+          <label>Start Date:</label>
+          <input 
+            type="date" 
+            [(ngModel)]="customStartDate"
+            class="date-input">
+        </div>
+        <div class="date-input-group">
+          <label>End Date:</label>
+          <input 
+            type="date" 
+            [(ngModel)]="customEndDate"
+            class="date-input">
+        </div>
+        <button 
+          (click)="loadCustomStats()"
+          [disabled]="loadingCustom"
+          class="load-button">
+          {{ loadingCustom ? 'Loading...' : 'Load Statistics' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="error-banner">
+      ⚠️ {{ error }}
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading statistics...</p>
+    </div>
+  }
+
+  <!-- Statistics Display -->
+  @if (getCurrentStats() && !isLoading()) {
+    <div class="stats-content">
+      
+      <!-- Period Info -->
+      <div class="period-info">
+        <div class="info-card">
+          <span class="label">Period:</span>
+          <span class="value">
+            {{ formatDateDisplay(getCurrentStats()!.startDate) }} - 
+            {{ formatDateDisplay(getCurrentStats()!.endDate) }}
+          </span>
+        </div>
+        <div class="info-card">
+          <span class="label">Data Points:</span>
+          <span class="value">{{ getCurrentStats()!.totalDataPoints | number }}</span>
+        </div>
+      </div>
+
+      <!-- Main Metrics Grid -->
+      <div class="metrics-grid">
+        
+        <!-- Total Energy Consumption -->
+        <div class="metric-card highlight">
+          <div class="card-icon">⚡</div>
+          <div class="card-content">
+            <h3>Total Energy</h3>
+            <div class="main-value">
+              {{ formatNumber(getCurrentStats()!.totalActivePowerKwh, 2) }}
+              <span class="unit">kWh</span>
+            </div>
+            <div class="sub-info">
+              Estimated Cost: ${{ formatNumber(getCurrentStats()!.estimatedCostUSD, 2) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Average Power -->
+        <div class="metric-card">
+          <div class="card-icon">📊</div>
+          <div class="card-content">
+            <h3>Average Power</h3>
+            <div class="main-value">
+              {{ formatNumber(getCurrentStats()!.avgActivePower, 3) }}
+              <span class="unit">kW</span>
+            </div>
+            <div class="range-info">
+              <span>Min: {{ formatNumber(getCurrentStats()!.minActivePower, 2) }}</span>
+              <span>Max: {{ formatNumber(getCurrentStats()!.maxActivePower, 2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Average Voltage -->
+        <div class="metric-card">
+          <div class="card-icon">🔌</div>
+          <div class="card-content">
+            <h3>Average Voltage</h3>
+            <div class="main-value">
+              {{ formatNumber(getCurrentStats()!.avgVoltage, 1) }}
+              <span class="unit">V</span>
+            </div>
+            <div class="range-info">
+              <span>Min: {{ formatNumber(getCurrentStats()!.minVoltage, 1) }}</span>
+              <span>Max: {{ formatNumber(getCurrentStats()!.maxVoltage, 1) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Average Current -->
+        <div class="metric-card">
+          <div class="card-icon">⚙️</div>
+          <div class="card-content">
+            <h3>Average Current</h3>
+            <div class="main-value">
+              {{ formatNumber(getCurrentStats()!.avgIntensity, 2) }}
+              <span class="unit">A</span>
+            </div>
+            <div class="range-info">
+              <span>Min: {{ formatNumber(getCurrentStats()!.minIntensity, 2) }}</span>
+              <span>Max: {{ formatNumber(getCurrentStats()!.maxIntensity, 2) }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Peak Usage Card -->
+      @if (getCurrentStats()!.peakUsage) {
+        <div class="peak-usage-card">
+          <h2>🔥 Peak Usage</h2>
+          <div class="peak-content">
+            <div class="peak-stat">
+              <span class="peak-label">Power</span>
+              <span class="peak-value">
+                {{ formatNumber(getCurrentStats()!.peakUsage.power, 2) }} kW
+              </span>
+            </div>
+            <div class="peak-stat">
+              <span class="peak-label">Time</span>
+              <span class="peak-value">
+                {{ formatPeakTime(getCurrentStats()!.peakUsage.timestamp) }}
+              </span>
+            </div>
+            <div class="peak-stat">
+              <span class="peak-label">Day</span>
+              <span class="peak-value">
+                {{ getCurrentStats()!.peakUsage.dayOfWeek }}
+              </span>
+            </div>
+            <div class="peak-stat">
+              <span class="peak-label">Hour</span>
+              <span class="peak-value">
+                {{ getCurrentStats()!.peakUsage.hourOfDay }}:00
+              </span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Room-by-Room Breakdown -->
+      <div class="breakdown-section">
+        <h2>📍 Room-by-Room Breakdown</h2>
+        <div class="room-cards">
+          
+          <!-- Kitchen -->
+          <div class="room-card">
+            <div class="room-header" [style.background]="getSubMeteringColor(0)">
+              <span class="room-icon">🍳</span>
+              <h3>{{ getCurrentStats()!.kitchen.name }}</h3>
+            </div>
+            <div class="room-content">
+              <div class="room-stat">
+                <span class="stat-label">Energy Used</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.kitchen.totalKwh, 2) }} kWh
+                </span>
+              </div>
+              <div class="room-stat">
+                <span class="stat-label">% of Total</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.kitchen.percentage, 1) }}%
+                </span>
+              </div>
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill"
+                  [style.width.%]="getCurrentStats()!.kitchen.percentage"
+                  [style.background]="getSubMeteringColor(0)">
+                </div>
+              </div>
+              <p class="room-description">
+                Dishwasher, oven, microwave
+              </p>
+            </div>
+          </div>
+
+          <!-- Laundry -->
+          <div class="room-card">
+            <div class="room-header" [style.background]="getSubMeteringColor(1)">
+              <span class="room-icon">🧺</span>
+              <h3>{{ getCurrentStats()!.laundry.name }}</h3>
+            </div>
+            <div class="room-content">
+              <div class="room-stat">
+                <span class="stat-label">Energy Used</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.laundry.totalKwh, 2) }} kWh
+                </span>
+              </div>
+              <div class="room-stat">
+                <span class="stat-label">% of Total</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.laundry.percentage, 1) }}%
+                </span>
+              </div>
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill"
+                  [style.width.%]="getCurrentStats()!.laundry.percentage"
+                  [style.background]="getSubMeteringColor(1)">
+                </div>
+              </div>
+              <p class="room-description">
+                Washing machine, dryer, refrigerator
+              </p>
+            </div>
+          </div>
+
+          <!-- HVAC -->
+          <div class="room-card">
+            <div class="room-header" [style.background]="getSubMeteringColor(2)">
+              <span class="room-icon">❄️</span>
+              <h3>{{ getCurrentStats()!.hvac.name }}</h3>
+            </div>
+            <div class="room-content">
+              <div class="room-stat">
+                <span class="stat-label">Energy Used</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.hvac.totalKwh, 2) }} kWh
+                </span>
+              </div>
+              <div class="room-stat">
+                <span class="stat-label">% of Total</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.hvac.percentage, 1) }}%
+                </span>
+              </div>
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill"
+                  [style.width.%]="getCurrentStats()!.hvac.percentage"
+                  [style.background]="getSubMeteringColor(2)">
+                </div>
+              </div>
+              <p class="room-description">
+                Water heater, air conditioner
+              </p>
+            </div>
+          </div>
+
+          <!-- Other -->
+          <div class="room-card">
+            <div class="room-header" [style.background]="getSubMeteringColor(3)">
+              <span class="room-icon">💡</span>
+              <h3>{{ getCurrentStats()!.other.name }}</h3>
+            </div>
+            <div class="room-content">
+              <div class="room-stat">
+                <span class="stat-label">Energy Used</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.other.totalKwh, 2) }} kWh
+                </span>
+              </div>
+              <div class="room-stat">
+                <span class="stat-label">% of Total</span>
+                <span class="stat-value">
+                  {{ formatNumber(getCurrentStats()!.other.percentage, 1) }}%
+                </span>
+              </div>
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill"
+                  [style.width.%]="getCurrentStats()!.other.percentage"
+                  [style.background]="getSubMeteringColor(3)">
+                </div>
+              </div>
+              <p class="room-description">
+                Lighting, electronics, misc
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Reactive Power Info -->
+      <div class="additional-metrics">
+        <h2>🔄 Additional Metrics</h2>
+        <div class="additional-cards">
+          <div class="additional-card">
+            <h4>Reactive Power</h4>
+            <div class="metric-row">
+              <span>Average:</span>
+              <span>{{ formatNumber(getCurrentStats()!.avgReactivePower, 3) }} kW</span>
+            </div>
+            <div class="metric-row">
+              <span>Range:</span>
+              <span>
+                {{ formatNumber(getCurrentStats()!.minReactivePower, 2) }} - 
+                {{ formatNumber(getCurrentStats()!.maxReactivePower, 2) }} kW
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  <!-- No Data State -->
+  @if (!getCurrentStats() && !isLoading()) {
+    <div class="no-data-state">
+      <div class="no-data-icon">📊</div>
+      <h3>No Statistics Available</h3>
+      <p>Select a time period to view statistics</p>
+    </div>
+  }
+
+</div>

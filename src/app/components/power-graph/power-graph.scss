@@ -1,0 +1,83 @@
+.power-graph {
+  h3 {
+    margin: 0 0 20px 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+  }
+
+  .graph-container {
+    position: relative;
+    width: 100%;
+    min-height: 450px;
+  }
+
+  :host ::ng-deep {
+    .x-axis, .y-axis {
+      path, line {
+        stroke: #95a5a6;
+      }
+
+      text {
+        fill: #7f8c8d;
+        font-size: 12px;
+      }
+    }
+
+    .x-axis-label, .y-axis-label {
+      fill: #2c3e50;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .historical-line {
+      stroke: #3498db;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .realtime-line {
+      stroke: #e74c3c;
+      stroke-width: 3;
+      fill: none;
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      font-size: 13px;
+      line-height: 1.6;
+
+      strong {
+        color: #2c3e50;
+      }
+    }
+
+    .hover-line {
+      stroke: #95a5a6;
+      stroke-width: 1;
+      stroke-dasharray: 3, 3;
+    }
+
+    .hover-circle {
+      fill: #3498db;
+      stroke: white;
+      stroke-width: 2;
+    }
+
+    .realtime-marker {
+      fill: #e74c3c;
+    }
+
+    .legend {
+      text {
+        fill: #7f8c8d;
+        font-size: 12px;
+      }
+    }
+  }
+}

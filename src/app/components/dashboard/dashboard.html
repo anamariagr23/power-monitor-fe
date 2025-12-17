@@ -1,0 +1,102 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <h1>⚡ Power Consumption Monitor</h1>
+    <p class="subtitle">Lambda Architecture - Real-time + Historical Data</p>
+  </header>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="control-group">
+      <label for="dateSelector">Select Date:</label>
+      <input 
+        type="date" 
+        id="dateSelector"
+        [(ngModel)]="selectedDate"
+        (change)="onDateChange()"
+        class="date-input"
+      />
+    </div>
+
+    <div class="control-group">
+      <label class="switch">
+        <input 
+          type="checkbox" 
+          [(ngModel)]="isRealtimeEnabled"
+          (change)="toggleRealtime()"
+        />
+        <span class="slider"></span>
+      </label>
+      <span class="realtime-label">
+        Real-time Mode 
+        <span [class.connected]="isConnected" [class.disconnected]="!isConnected">
+          {{ isRealtimeEnabled ? (isConnected ? '● Connected' : '○ Connecting...') : '○ Offline' }}
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading data...</p>
+    </div>
+  }
+
+  <!-- Metrics Cards - FIXED null check -->
+  @if (currentMetrics && !loading) {
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Active Power</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.globalActivePower) }}</div>
+        <div class="metric-unit">kW</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Voltage</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.voltage) }}</div>
+        <div class="metric-unit">V</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Current</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.globalIntensity) }}</div>
+        <div class="metric-unit">A</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Reactive Power</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.globalReactivePower) }}</div>
+        <div class="metric-unit">kW</div>
+      </div>
+    </div>
+  }
+
+  <!-- Power Graph -->
+  @if (!loading) {
+    <div class="graph-container">
+      <app-power-graph 
+        [historicalData]="historicalData"
+        [realtimeData]="realtimeData">
+      </app-power-graph>
+    </div>
+  }
+
+  <!-- Footer Info -->
+  <div class="info-footer">
+    <p>
+      <strong>Data Source:</strong> UCI Electric Power Consumption Dataset
+      @if (historicalData.length > 0) {
+        <span> | {{ historicalData.length }} data points</span>
+      }
+    </p>
+  </div>
+</div>
