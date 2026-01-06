@@ -21,6 +21,33 @@
   }
 }
 
+// Dashboard Navigation Tile
+.dashboard-navigation-tile {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  
+  // ... (includes hover effects, icon styles, etc.)
+}
+
+@media (max-width: 768px) {
+  .dashboard-navigation-tile {
+    flex-direction: column;
+    text-align: center;
+    
+    .tile-arrow {
+      transform: rotate(90deg); // Arrow points down on mobile
+    }
+  }
+}
+
 // Period Tabs
 .period-tabs {
   display: flex;

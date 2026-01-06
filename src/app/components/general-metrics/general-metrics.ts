@@ -3,6 +3,7 @@ import { HouseStatistics } from '../../models/house-statistics.model';
 import { StatisticsService } from '../../services/statistics.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-general-metrics',
@@ -34,7 +35,10 @@ export class GeneralMetrics implements OnInit {
   // Error handling
   error: string = '';
 
-  constructor(private statisticsService: StatisticsService) {}
+  constructor(private statisticsService: StatisticsService,
+    private router: Router
+
+  ) {}
 
   ngOnInit(): void {
     // Load all predefined statistics on init
@@ -49,6 +53,10 @@ export class GeneralMetrics implements OnInit {
     
     this.customStartDate = this.formatDate(weekAgo);
     this.customEndDate = this.formatDate(today);
+  }
+
+  navigateToDashboard(): void {
+  this.router.navigate(['/dashboard']);
   }
 
   loadLastDayStats(): void {

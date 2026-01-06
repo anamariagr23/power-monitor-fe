@@ -5,6 +5,29 @@
     <p class="subtitle">Comprehensive energy consumption analysis</p>
   </header>
 
+  <!-- Real-time Dashboard Navigation Tile -->
+<div class="dashboard-navigation-tile" (click)="navigateToDashboard()">
+  <div class="tile-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+  </div>
+  <div class="tile-content">
+    <h2>⚡ Real-time Power Monitor</h2>
+    <p>View live power consumption data and historical trends</p>
+    <div class="tile-features">
+      <span class="feature-tag">📊 Live Graphs</span>
+      <span class="feature-tag">📈 Historical Data</span>
+      <span class="feature-tag">🔌 Current Metrics</span>
+    </div>
+  </div>
+  <div class="tile-arrow">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </div>
+</div>
+
   <!-- Time Period Tabs -->
   <div class="period-tabs">
     <button 
