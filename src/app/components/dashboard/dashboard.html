@@ -5,6 +5,9 @@
     <p class="subtitle">Lambda Architecture - Real-time + Historical Data</p>
   </header>
 
+  <!-- Alerts Banner -->
+  <app-alerts-banner></app-alerts-banner>
+
   <!-- Controls -->
   <div class="controls">
     <div class="control-group">
@@ -13,9 +16,12 @@
         type="date" 
         id="dateSelector"
         [(ngModel)]="selectedDate"
-        (change)="onDateChange()"
+        (change)="onDateTimeChange()"
         class="date-input"
       />
+      <select [(ngModel)]="selectedHour" (ngModelChange)="onDateTimeChange()" class="hour-input">
+        <option *ngFor="let h of hours" [ngValue]="h">{{ h }}:00 (Local)</option>
+      </select>
     </div>
 
     <div class="control-group">
@@ -30,9 +36,17 @@
       <span class="realtime-label">
         Real-time Mode 
         <span [class.connected]="isConnected" [class.disconnected]="!isConnected">
-          {{ isRealtimeEnabled ? (isConnected ? '● Connected' : '○ Connecting...') : '○ Offline' }}
+          {{ isRealtimeEnabled ? (isConnected ? '● Online' : '○ Connecting...') : '○ Offline' }}
         </span>
       </span>
+
+      <div class="auto-refresh-control" *ngIf="isRealtimeEnabled">
+          <label>
+              <input type="checkbox" [(ngModel)]="autoRefreshEnabled" (change)="toggleAutoRefresh()">
+              Auto-refresh
+          </label>
+          <span *ngIf="lastRefresh" class="last-refresh">Updated: {{ lastRefresh | date:'mediumTime' }}</span>
+      </div>
     </div>
   </div>
 
@@ -40,6 +54,11 @@
   @if (error) {
     <div class="error-message">
       {{ error }}
+    </div>
+  }
+  @if (realtimeError) {
+    <div class="error-message warning">
+      {{ realtimeError }}
     </div>
   }
 
@@ -56,25 +75,25 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-label">Active Power</div>
-        <div class="metric-value">{{ formatNumber(currentMetrics.globalActivePower) }}</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.avgPower) }}</div>
         <div class="metric-unit">kW</div>
       </div>
 
       <div class="metric-card">
         <div class="metric-label">Voltage</div>
-        <div class="metric-value">{{ formatNumber(currentMetrics.voltage) }}</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.avgVoltage) }}</div>
         <div class="metric-unit">V</div>
       </div>
 
       <div class="metric-card">
         <div class="metric-label">Current</div>
-        <div class="metric-value">{{ formatNumber(currentMetrics.globalIntensity) }}</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.avgCurrent) }}</div>
         <div class="metric-unit">A</div>
       </div>
 
       <div class="metric-card">
         <div class="metric-label">Reactive Power</div>
-        <div class="metric-value">{{ formatNumber(currentMetrics.globalReactivePower) }}</div>
+        <div class="metric-value">{{ formatNumber(currentMetrics.avgReactivePower) }}</div>
         <div class="metric-unit">kW</div>
       </div>
     </div>
@@ -84,10 +103,21 @@
   @if (!loading) {
     <div class="graph-container">
       <app-power-graph 
-        [historicalData]="historicalData"
-        [realtimeData]="realtimeData">
+        [data]="historicalData"
+        [color]="'steelblue'"
+        [title]="'Historical Data (' + selectedHour + ':00 - ' + (selectedHour + 1) + ':00)'">
       </app-power-graph>
     </div>
+
+    @if (isRealtimeEnabled) {
+      <div class="graph-container" style="margin-top: 20px;">
+        <app-power-graph 
+          [data]="realtimeData"
+          [color]="'red'"
+          [title]="'Real-time Data (Last 60 Minutes)'">
+        </app-power-graph>
+      </div>
+    }
   }
 
   <!-- Footer Info -->

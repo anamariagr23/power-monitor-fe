@@ -1,0 +1,14 @@
+<div class="alerts-container" *ngIf="alerts.length > 0">
+    <div class="alert-item" *ngFor="let alert of alerts" [class]="alert.level">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+            <span class="alert-message">{{ alert.message }}</span>
+            <span class="alert-details">
+                Current: {{ alert.power | number:'1.2-2' }} kW | 
+                Threshold: {{ alert.threshold | number:'1.2-2' }} kW | 
+                Daily Avg Peak: {{ alert.avgMaxDailyPower | number:'1.2-2' }} kW
+            </span>
+            <span class="alert-time">{{ alert.timestamp | date:'mediumTime' }}</span>
+        </div>
+    </div>
+</div>

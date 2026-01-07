@@ -13,14 +13,24 @@ export class HistoricalData {
   constructor(private http: HttpClient) {}
 
   getHistoricalData(date: string): Observable<HistoricalDataResponse> {
-    return this.http.get<HistoricalDataResponse>(`${this.apiUrl}/${date}`).pipe(
-      map(response => ({
-        ...response,
-        data: response.data.map(item => ({
+    return this.http.get<any>(`${this.apiUrl}/${date}`).pipe(
+      map(response => {
+        // Handle both array and wrapped object responses
+        const data = Array.isArray(response) 
+            ? response 
+            : (response?.data || []);
+        
+        const mappedData = data.map((item: any) => ({
           ...item,
           timestamp: new Date(item.timestamp)
-        }))
-      }))
+        }));
+        
+        return {
+          date: response?.date || date,
+          count: response?.count ?? mappedData.length,
+          data: mappedData
+        };
+      })
     );
   }
 
